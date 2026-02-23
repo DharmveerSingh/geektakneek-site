@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<title>Geek Takneek Chatbot</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;700&family=Source+Sans+Pro:wght@300;600&display=swap" rel="stylesheet">
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			background: transparent;
+			font-family: "Source Sans Pro", Arial, sans-serif;
+			overflow: hidden;
+		}
+		.chatbot {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			font-family: "Source Sans Pro", Arial, sans-serif;
+		}
+		.chatbot, .chatbot * {
+			box-sizing: border-box;
+		}
+		.chatbot-toggle {
+			min-width: 118px;
+			height: 56px;
+			padding: 8px 12px 8px 8px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: flex-start;
+			gap: 8px;
+			border: solid 2px rgba(255, 255, 255, 0.2);
+			border-radius: 999px;
+			background: #2e3141;
+			color: #ffffff;
+			font-family: "Raleway", Arial, sans-serif;
+			font-size: 0.72em;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			line-height: 1;
+			cursor: pointer;
+			box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 12px 28px rgba(0, 0, 0, 0.35);
+			transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+		}
+		.chatbot-toggle img {
+			width: 38px;
+			height: 38px;
+			object-fit: cover;
+			border-radius: 50%;
+			display: block;
+			flex: 0 0 auto;
+		}
+		.chatbot-toggle:hover {
+			transform: translateY(-1px);
+			background: #353849;
+			border-color: #5b6ba6;
+		}
+		.chatbot-toggle-text {
+			display: inline-block;
+			color: #ffffff;
+			white-space: nowrap;
+		}
+		.chatbot-panel {
+			position: absolute;
+			right: 0;
+			bottom: 70px;
+			width: 348px;
+			max-width: calc(100vw - 16px);
+			background: rgba(46, 49, 65, 0.42);
+			border: solid 2px rgba(255, 255, 255, 0.125);
+			border-radius: 8px;
+			overflow: hidden;
+			box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			opacity: 0;
+			pointer-events: none;
+			transform: translateY(10px);
+			transition: opacity 0.2s ease, transform 0.2s ease;
+		}
+		.chatbot.open .chatbot-panel {
+			opacity: 1;
+			pointer-events: auto;
+			transform: translateY(0);
+		}
+		.chatbot-header {
+			padding: 14px 16px 12px;
+			background: rgba(53, 56, 73, 0.45);
+			color: #ffffff;
+			font-family: "Raleway", Arial, sans-serif;
+			font-size: 0.86em;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			border-bottom: solid 2px rgba(255, 255, 255, 0.075);
+		}
+		.chatbot-header-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.chatbot-header-row span {
+			flex: 1;
+		}
+		.chatbot-header-avatar {
+			width: 30px;
+			height: 30px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: solid 1px rgba(255, 255, 255, 0.25);
+		}
+		.chatbot-close {
+			width: 28px;
+			height: 28px;
+			border: solid 1px rgba(255, 255, 255, 0.2);
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.08);
+			color: #ffffff;
+			font-size: 16px;
+			line-height: 1;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0;
+		}
+		.chatbot-close:hover {
+			background: rgba(255, 255, 255, 0.16);
+			border-color: #5b6ba6;
+		}
+		.chatbot-body {
+			height: 270px;
+			overflow-y: auto;
+			padding: 14px 12px 10px;
+			background: rgba(255, 255, 255, 0.03);
+			scrollbar-width: thin;
+			scrollbar-color: #5b6ba6 rgba(255, 255, 255, 0.08);
+		}
+		.chatbot-body::-webkit-scrollbar {
+			width: 10px;
+		}
+		.chatbot-body::-webkit-scrollbar-track {
+			background: rgba(255, 255, 255, 0.06);
+			border-radius: 999px;
+		}
+		.chatbot-body::-webkit-scrollbar-thumb {
+			background: linear-gradient(180deg, #6a79ae 0%, #4c5c96 100%);
+			border-radius: 999px;
+			border: 2px solid rgba(255, 255, 255, 0.08);
+		}
+		.chatbot-body::-webkit-scrollbar-thumb:hover {
+			background: linear-gradient(180deg, #7b89bb 0%, #5b6ba6 100%);
+		}
+		.chat-message {
+			max-width: 88%;
+			padding: 10px 12px;
+			border-radius: 8px;
+			font-size: 0.92em;
+			line-height: 1.4;
+			letter-spacing: 0;
+			text-transform: none;
+			text-align: left;
+			margin-bottom: 10px;
+		}
+		.chat-message.bot {
+			background: rgba(255, 255, 255, 0.12);
+			border: solid 1px rgba(255, 255, 255, 0.08);
+			color: rgba(255, 255, 255, 0.88);
+		}
+		.chat-message.user {
+			background: rgba(76, 92, 150, 0.52);
+			color: #ffffff;
+			margin-left: auto;
+			border: solid 1px rgba(255, 255, 255, 0.14);
+		}
+		.chat-message.typing {
+			width: 66px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			padding: 12px 10px;
+		}
+		.chat-dot {
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.85);
+			animation: chatDot 1.1s infinite ease-in-out;
+		}
+		.chat-dot:nth-child(2) {
+			animation-delay: 0.15s;
+		}
+		.chat-dot:nth-child(3) {
+			animation-delay: 0.3s;
+		}
+		@keyframes chatDot {
+			0%, 80%, 100% { transform: scale(0.65); opacity: 0.5; }
+			40% { transform: scale(1); opacity: 1; }
+		}
+		.chatbot-suggestions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			padding: 0 12px 12px;
+			background: rgba(255, 255, 255, 0.02);
+		}
+		.chatbot-suggestions button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 5px 10px;
+			border-radius: 999px;
+			border: solid 1px rgba(255, 255, 255, 0.2);
+			background: rgba(255, 255, 255, 0.09);
+			color: rgba(255, 255, 255, 0.8);
+			font-size: 0.75em;
+			line-height: 1.2;
+			letter-spacing: 0;
+			text-transform: none;
+			cursor: pointer;
+			transition: background-color 0.2s ease, border-color 0.2s ease;
+		}
+		.chatbot-suggestions button:hover {
+			background: rgba(255, 255, 255, 0.1);
+			border-color: #5b6ba6;
+		}
+		.chatbot-footer {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px;
+			background: rgba(53, 56, 73, 0.45);
+			border-top: solid 2px rgba(255, 255, 255, 0.075);
+		}
+		.chatbot-input {
+			flex: 1;
+			border: solid 2px rgba(255, 255, 255, 0.125);
+			background: rgba(255, 255, 255, 0.1);
+			color: #ffffff;
+			border-radius: 6px;
+			padding: 8px 10px;
+			font-size: 0.9em;
+			line-height: 1.3;
+			letter-spacing: 0;
+			text-transform: none;
+			text-align: left;
+		}
+		.chatbot-input:focus {
+			border-color: #5b6ba6;
+			outline: none;
+		}
+		.chatbot-send {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 72px;
+			min-height: 40px;
+			border: solid 2px #5b6ba6;
+			border-radius: 6px;
+			background: transparent;
+			color: #ffffff;
+			padding: 8px 12px;
+			font-family: "Raleway", Arial, sans-serif;
+			font-size: 0.72em;
+			line-height: 1;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			text-align: center;
+			cursor: pointer;
+			transition: background-color 0.2s ease, border-color 0.2s ease;
+		}
+		.chatbot-send:hover {
+			background: rgba(91, 107, 166, 0.25);
+			border-color: #6a79ae;
+		}
+	</style>
+</head>
+<body>
+	<div class="chatbot" id="chatbot">
+		<div class="chatbot-panel" id="chatbotPanel" aria-hidden="true">
+			<div class="chatbot-header">
+				<div class="chatbot-header-row">
+					<img class="chatbot-header-avatar" src="images/chatbot-avatar.png" alt="Chatbot Avatar" />
+					<span>Geek Takneek Assistant</span>
+					<button class="chatbot-close" id="chatbotClose" type="button" aria-label="Close chat">x</button>
+				</div>
+			</div>
+			<div class="chatbot-body" id="chatbotBody">
+				<div class="chat-message bot">Hi! Ask me about our services, pricing, or how to start.</div>
+			</div>
+			<div class="chatbot-suggestions">
+				<button type="button" class="chatbot-chip">What services do you offer?</button>
+				<button type="button" class="chatbot-chip">How do I contact you?</button>
+				<button type="button" class="chatbot-chip">Do you build AI chatbots?</button>
+			</div>
+			<div class="chatbot-footer">
+				<input id="chatbotInput" class="chatbot-input" type="text" placeholder="Type your message..." />
+				<button id="chatbotSend" class="chatbot-send" type="button">Send</button>
+			</div>
+		</div>
+		<button class="chatbot-toggle" id="chatbotToggle" type="button" aria-label="Open chat">
+			<img src="images/chatbot-avatar.png" alt="Open Chat" />
+			<span class="chatbot-toggle-text">Chat</span>
+		</button>
+	</div>
+
+	<script>
+		const chatbot = document.getElementById("chatbot");
+		const chatbotPanel = document.getElementById("chatbotPanel");
+		const chatbotToggle = document.getElementById("chatbotToggle");
+		const chatbotBody = document.getElementById("chatbotBody");
+		const chatbotInput = document.getElementById("chatbotInput");
+		const chatbotSend = document.getElementById("chatbotSend");
+		const chatbotChips = document.querySelectorAll(".chatbot-chip");
+		const chatbotClose = document.getElementById("chatbotClose");
+		const CHATBOT_HISTORY_KEY = "geektakneek_chat_history_v1";
+		let defaultBotMessage = "Hi! Ask me about our services, pricing, or how to start.";
+		const fallbackKnowledgeBase = {
+			welcome_message: defaultBotMessage,
+			intents: [
+				{
+					id: "services",
+					keywords: ["service", "services", "offer", "provide", "solutions", "work"],
+					reply: "We provide custom websites, web/mobile apps, API integration, cloud solutions, and AI chatbot development."
+				},
+				{
+					id: "pricing",
+					keywords: ["price", "pricing", "cost", "budget", "quote", "charges"],
+					reply: "Pricing depends on project scope and timeline. Share your requirement and we can provide a custom estimate quickly."
+				},
+				{
+					id: "contact",
+					keywords: ["contact", "email", "call", "phone", "reach", "connect"],
+					reply: "You can contact us using the form on this page or email connect@geektakneek.com."
+				}
+			],
+			faq: [
+				{
+					question: "Do you provide API development and integration?",
+					keywords: ["api", "integration", "third-party", "gateway", "crm", "erp"],
+					answer: "Yes. We develop custom APIs and integrate third-party services like payments, CRM, and cloud tools."
+				}
+			],
+			fallback_responses: [
+				"Thanks for your message. Please share your project type, budget, and timeline so we can guide you better."
+			]
+		};
+		let knowledgeBase = fallbackKnowledgeBase;
+
+		function notifyParent(open) {
+			window.parent.postMessage({ type: "chatbot-resize", open: open }, "*");
+		}
+
+		function toggleChatbot() {
+			const isOpen = chatbot.classList.toggle("open");
+			chatbotPanel.setAttribute("aria-hidden", (!isOpen).toString());
+			notifyParent(isOpen);
+			if (isOpen) {
+				chatbotInput.focus();
+			}
+		}
+
+		function addChatMessage(text, role, persist) {
+			const message = document.createElement("div");
+			message.className = "chat-message " + role;
+			message.textContent = text;
+			chatbotBody.appendChild(message);
+			chatbotBody.scrollTop = chatbotBody.scrollHeight;
+
+			if (persist) {
+				saveHistory();
+			}
+		}
+
+		function addTypingIndicator() {
+			const message = document.createElement("div");
+			message.className = "chat-message bot typing";
+			message.innerHTML = "<span class=\"chat-dot\"></span><span class=\"chat-dot\"></span><span class=\"chat-dot\"></span>";
+			chatbotBody.appendChild(message);
+			chatbotBody.scrollTop = chatbotBody.scrollHeight;
+			return message;
+		}
+
+		function saveHistory() {
+			try {
+				const history = [];
+				const messages = chatbotBody.querySelectorAll(".chat-message:not(.typing)");
+				messages.forEach(function(item) {
+					const role = item.classList.contains("user") ? "user" : "bot";
+					history.push({ role: role, text: item.textContent || "" });
+				});
+				localStorage.setItem(CHATBOT_HISTORY_KEY, JSON.stringify(history));
+			} catch (error) {
+				console.log("Unable to save chat history", error);
+			}
+		}
+
+		function loadHistory() {
+			try {
+				const raw = localStorage.getItem(CHATBOT_HISTORY_KEY);
+				if (!raw) return null;
+				const parsed = JSON.parse(raw);
+				if (!Array.isArray(parsed)) return null;
+				return parsed.filter(function(item) {
+					return item && (item.role === "bot" || item.role === "user") && typeof item.text === "string";
+				});
+			} catch (error) {
+				return null;
+			}
+		}
+
+		function renderHistory() {
+			const saved = loadHistory();
+			chatbotBody.innerHTML = "";
+			if (!saved || saved.length === 0) {
+				addChatMessage(defaultBotMessage, "bot", true);
+				return;
+			}
+			saved.forEach(function(item) {
+				addChatMessage(item.text, item.role, false);
+			});
+			chatbotBody.scrollTop = chatbotBody.scrollHeight;
+		}
+
+		function normalizeText(text) {
+			return (text || "").toLowerCase().trim();
+		}
+
+		function pickFallbackReply() {
+			const items = Array.isArray(knowledgeBase.fallback_responses) ? knowledgeBase.fallback_responses : [];
+			if (items.length === 0) {
+				return "Thanks for your message. Please share a bit more detail and our team will guide you.";
+			}
+			const idx = Math.floor(Math.random() * items.length);
+			return items[idx];
+		}
+
+		function resolveIntentReply(text) {
+			const intents = Array.isArray(knowledgeBase.intents) ? knowledgeBase.intents : [];
+			for (let i = 0; i < intents.length; i++) {
+				const intent = intents[i];
+				const words = Array.isArray(intent.keywords) ? intent.keywords : [];
+				const matched = words.some(function(word) {
+					return text.includes(normalizeText(word));
+				});
+				if (matched && intent.reply) {
+					return intent.reply;
+				}
+			}
+			return null;
+		}
+
+		function resolveFaqReply(text) {
+			const list = Array.isArray(knowledgeBase.faq) ? knowledgeBase.faq : [];
+			let bestAnswer = null;
+			let bestScore = 0;
+
+			for (let i = 0; i < list.length; i++) {
+				const item = list[i];
+				const words = Array.isArray(item.keywords) ? item.keywords : [];
+				let score = 0;
+
+				for (let j = 0; j < words.length; j++) {
+					const term = normalizeText(words[j]);
+					if (term && text.includes(term)) {
+						score += 1;
+					}
+				}
+
+				if (score > bestScore && item.answer) {
+					bestScore = score;
+					bestAnswer = item.answer;
+				}
+			}
+
+			return bestScore > 0 ? bestAnswer : null;
+		}
+
+		function getMockReply(userText) {
+			const text = normalizeText(userText);
+			const faqReply = resolveFaqReply(text);
+			if (faqReply) {
+				return faqReply;
+			}
+
+			const intentReply = resolveIntentReply(text);
+			if (intentReply) {
+				return intentReply;
+			}
+
+			return pickFallbackReply();
+		}
+
+		function isKnowledgeBaseValid(data) {
+			return data && typeof data === "object";
+		}
+
+		async function loadKnowledgeBase() {
+			try {
+				const response = await fetch("chatbot-data.json", { cache: "no-store" });
+				if (!response.ok) return;
+				const data = await response.json();
+				if (!isKnowledgeBaseValid(data)) return;
+				knowledgeBase = Object.assign({}, fallbackKnowledgeBase, data);
+				if (typeof knowledgeBase.welcome_message === "string" && knowledgeBase.welcome_message.trim()) {
+					defaultBotMessage = knowledgeBase.welcome_message.trim();
+				}
+			} catch (error) {
+				console.log("Using fallback chatbot data", error);
+			}
+		}
+
+		function sendChatMessage(customText) {
+			const rawText = customText || chatbotInput.value;
+			const userText = rawText.trim();
+			if (!userText) return;
+
+			addChatMessage(userText, "user", true);
+			chatbotInput.value = "";
+			const typingIndicator = addTypingIndicator();
+
+			setTimeout(function() {
+				typingIndicator.remove();
+				addChatMessage(getMockReply(userText), "bot", true);
+			}, 350);
+		}
+
+		chatbotToggle.addEventListener("click", toggleChatbot);
+		chatbotClose.addEventListener("click", function() {
+			if (chatbot.classList.contains("open")) {
+				toggleChatbot();
+			}
+		});
+		chatbotSend.addEventListener("click", function() {
+			sendChatMessage();
+		});
+		chatbotInput.addEventListener("keydown", function(event) {
+			if (event.key === "Enter") {
+				event.preventDefault();
+				sendChatMessage();
+			}
+		});
+		chatbotChips.forEach(function(chip) {
+			chip.addEventListener("click", function() {
+				sendChatMessage(chip.textContent || "");
+			});
+		});
+
+		async function initializeChatbot() {
+			await loadKnowledgeBase();
+			renderHistory();
+			notifyParent(false);
+		}
+
+		initializeChatbot();
+	</script>
+</body>
+</html>

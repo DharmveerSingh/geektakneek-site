@@ -1,0 +1,62 @@
+{
+  "welcome_message": "Hi! Ask me about our services, pricing, timeline, or how to start.",
+  "intents": [
+    {
+      "id": "services",
+      "keywords": ["service", "services", "offer", "provide", "solutions", "work"],
+      "reply": "We provide custom websites, web/mobile apps, API integration, cloud solutions, and AI chatbot development."
+    },
+    {
+      "id": "pricing",
+      "keywords": ["price", "pricing", "cost", "budget", "quote", "charges"],
+      "reply": "Pricing depends on project scope and timeline. Share your requirement and we can provide a custom estimate quickly."
+    },
+    {
+      "id": "timeline",
+      "keywords": ["timeline", "time", "duration", "how long", "delivery", "deadline"],
+      "reply": "Typical delivery ranges from 1-2 weeks for small sites to 6-12 weeks for complex apps."
+    },
+    {
+      "id": "contact",
+      "keywords": ["contact", "email", "call", "phone", "reach", "connect", "whatsapp"],
+      "reply": "You can contact us using the form on this page or email connect@geektakneek.com."
+    },
+    {
+      "id": "chatbot",
+      "keywords": ["chatbot", "ai", "assistant", "bot"],
+      "reply": "Yes, we build AI chatbots and integrate them with websites, apps, and business workflows."
+    },
+    {
+      "id": "hello",
+      "keywords": ["hello", "hi", "hey", "namaste"],
+      "reply": "Hello! Tell me what you want to build and I can guide you with the next steps."
+    }
+  ],
+  "faq": [
+    {
+      "question": "Do you build e-commerce websites?",
+      "keywords": ["ecommerce", "e-commerce", "store", "shop", "cart", "payment"],
+      "answer": "Yes. We build secure, fast, and scalable e-commerce websites with payment gateway integration."
+    },
+    {
+      "question": "Do you provide API development and integration?",
+      "keywords": ["api", "integration", "third-party", "gateway", "crm", "erp"],
+      "answer": "Yes. We develop custom APIs and integrate third-party services like payments, CRM, and cloud tools."
+    },
+    {
+      "question": "Do you provide cloud services?",
+      "keywords": ["cloud", "aws", "azure", "gcp", "deployment", "microservices", "serverless"],
+      "answer": "Yes. We support cloud migration, deployment, microservices architecture, and serverless solutions."
+    },
+    {
+      "question": "Can you redesign an existing website?",
+      "keywords": ["redesign", "revamp", "improve", "existing website", "current website"],
+      "answer": "Yes. We can redesign your existing website with better UI, performance, and conversion-focused structure."
+    }
+  ],
+  "fallback_responses": [
+    "Thanks for your message. Please share your project type, budget, and timeline so we can guide you better.",
+    "I can help with websites, apps, APIs, cloud, and AI chatbot solutions. What are you planning to build?",
+    "I did not fully catch that. You can ask about services, pricing, timelines, or contact details."
+  ]
+}

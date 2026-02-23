@@ -49,6 +49,23 @@
 				display: none;
 				margin-top: 5px;
 			}
+			.chatbot-frame {
+				position: fixed;
+				right: 14px;
+				bottom: 14px;
+				width: 130px;
+				height: 74px;
+				border: none;
+				background: transparent;
+				z-index: 10002;
+				overflow: hidden;
+			}
+			@media screen and (max-width: 480px) {
+				.chatbot-frame {
+					right: 10px;
+					bottom: 10px;
+				}
+			}
 		</style>
 	</head>
 	<body class="is-preload">
@@ -241,6 +258,8 @@
 
 			</div>
 
+		<iframe id="chatbotFrame" class="chatbot-frame" src="chatbot.html" title="Geek Takneek Chatbot" loading="lazy"></iframe>
+
 		<!-- Modal Popup Container -->
 		<div id="popupModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
 			<div style="position: relative; width: 100%; max-width: 600px; height: auto; max-height: 85vh; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); padding: 0;">
@@ -422,6 +441,23 @@
 			document.addEventListener("keydown", function(event) {
 				if (event.key === "Escape") {
 					closePopup();
+				}
+			});
+
+			const chatbotFrame = document.getElementById("chatbotFrame");
+
+			window.addEventListener("message", function(event) {
+				if (event.source !== chatbotFrame.contentWindow) return;
+				if (!event.data || event.data.type !== "chatbot-resize") return;
+
+				if (event.data.open) {
+					const expandedWidth = Math.min(368, window.innerWidth - 16);
+					const expandedHeight = Math.min(560, window.innerHeight - 16);
+					chatbotFrame.style.width = expandedWidth + "px";
+					chatbotFrame.style.height = expandedHeight + "px";
+				} else {
+					chatbotFrame.style.width = "130px";
+					chatbotFrame.style.height = "74px";
 				}
 			});
 		</script>
